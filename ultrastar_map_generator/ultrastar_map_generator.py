@@ -1,4 +1,5 @@
 from copy import copy
+from math import inf
 
 from enums.enums import NoteType
 
@@ -24,6 +25,10 @@ class UltrastarMapGenerator:
                syllable
 
     @staticmethod
+    def create_break_line(beat_number):
+        return NoteType.get_note_type_string(NoteType.LINE_BREAK) + ' ' + beat_number
+
+    @staticmethod
     def create_line_break():
         return NoteType.get_note_type_string(NoteType.LINE_BREAK)
 
@@ -35,34 +40,54 @@ class UltrastarMapGenerator:
     def generate_map_lines(notes_with_duration_and_syllables):
         lines = []
         for note in notes_with_duration_and_syllables:
-            lines.append(
-                UltrastarMapGenerator.create_line(NoteType.STANDARD_NOTE, str(note[0]), str(note[1]), str(note[2]),
-                                                  note[3]))
+            line = ''
+            if note[3] == NoteType.LINE_BREAK:
+                line = UltrastarMapGenerator.create_break_line(str(note[0]))
+            else:
+                line = UltrastarMapGenerator.create_line(
+                    NoteType.STANDARD_NOTE, str(note[0]), str(note[1]), str(note[2]), note[3]
+                )
+            lines.append(line)
         lines.append(UltrastarMapGenerator.end_of_the_file())
         return lines
 
     @staticmethod
-    def get_map_lines(extracted_midis, duration):
+    def get_duration_with_note(extracted_midis, duration):
         lines = []
-        # beat number, duration, note
-        line = [0, duration, extracted_midis[0]]
-        previous_line_index = 0
+        line = [duration, extracted_midis[0]]
         for midi_index in range(1, len(extracted_midis) - 1):
             midi_note = extracted_midis[midi_index]
-            if midi_note == line[2]:
-                line[1] += duration
+            if midi_note == line[1] or UltrastarMapGenerator.is_octave(line[1], midi_note):
+                line[0] += duration
             else:
                 lines.append(copy(line))
-                line[0] = lines[previous_line_index][0] + lines[previous_line_index][1] + 1
-                line[1] = duration
-                line[2] = midi_note
-                previous_line_index += 1
+                line[0] = duration
+                line[1] = midi_note
         return lines
 
     @staticmethod
+    def is_octave(note_a, note_b):
+        return note_a - 12 == note_b
+
+    @staticmethod
+    def get_beat_numbers(duration_with_notes):
+        duration_with_notes[0].insert(0, 0)
+        for index in range(1, len(duration_with_notes)):
+            previous_element = duration_with_notes[index - 1]
+            beat_number = previous_element[0] + previous_element[1] + 1
+            duration_with_notes[index].insert(0, beat_number)
+        return duration_with_notes
+
+    @staticmethod
     def get_notes_with_duration_and_syllables(notes_with_duration, syllables):
+        syllables_index = 0
         for index, note_with_duration in enumerate(notes_with_duration):
-            note_with_duration.append(syllables[index])
+            syllable = syllables[syllables_index]
+            syllables_index += 1
+            if note_with_duration[2] == -inf:
+                syllable = NoteType.LINE_BREAK
+                syllables_index -= 1
+            note_with_duration.append(syllable)
         return notes_with_duration
 
     @staticmethod
@@ -71,3 +96,7 @@ class UltrastarMapGenerator:
             for element in elements:
                 file.write(element + '\n')
             file.close()
+
+    @staticmethod
+    def round_beats(us_lines):
+        return list(map(lambda us_line: [round(us_line[0]), us_line[1]], us_lines))

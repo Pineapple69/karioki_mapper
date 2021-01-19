@@ -55,3 +55,32 @@ class SoundProcessor:
     @staticmethod
     def seconds_to_beats(bpm, seconds):
         return bpm * seconds / 60
+
+    @staticmethod
+    def filter_computational_errors(duration_with_midi_list, min_note_duration):
+        filtered_list = [duration_with_midi_list[0]]
+        midi_list_max_index = len(duration_with_midi_list) - 1
+
+        for index in range(1, midi_list_max_index):
+            current_note = duration_with_midi_list[index]
+            if index <= midi_list_max_index:
+                next_note = duration_with_midi_list[index + 1]
+                if current_note[0] < min_note_duration:
+                    if filtered_list[-1][1] != current_note[1] and filtered_list[-1][1] == next_note[1]:
+                        filtered_list[0] += current_note[0]
+                else:
+                    filtered_list.append(current_note)
+            else:
+                filtered_list.append(current_note)
+
+        if filtered_list[0][0] < min_note_duration:
+            filtered_list[1][0] += filtered_list[0][0]
+            del filtered_list[0]
+
+        midi_list_last_item = duration_with_midi_list[midi_list_max_index]
+        if midi_list_last_item[0] < min_note_duration:
+            filtered_list[-1][0] = midi_list_last_item[0]
+        else:
+            filtered_list.append(midi_list_last_item)
+
+        return filtered_list
