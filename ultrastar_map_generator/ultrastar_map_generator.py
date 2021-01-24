@@ -66,6 +66,10 @@ class UltrastarMapGenerator:
         return lines
 
     @staticmethod
+    def get_ultrastar_note(midi_note):
+        return midi_note - 60
+
+    @staticmethod
     def is_octave(note_a, note_b):
         return note_a - 12 == note_b
 
@@ -100,3 +104,9 @@ class UltrastarMapGenerator:
     @staticmethod
     def round_beats(us_lines):
         return list(map(lambda us_line: [round(us_line[0]), us_line[1]], us_lines))
+
+    @staticmethod
+    def midi_to_ultrastar_note(midi_notes):
+        for i, midi_note in enumerate(midi_notes):
+            midi_note[-1] = UltrastarMapGenerator.get_ultrastar_note(midi_note[-1])
+        return midi_notes

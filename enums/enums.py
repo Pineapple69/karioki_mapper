@@ -1,6 +1,12 @@
 from enum import Enum
 
 
+class GlobalVariables(Enum):
+    HIGHEST_NOTE = 1046.5  # C6 highest note sung by a soprano
+    LOWEST_NOTE = 65.406  # C2 lowest note sung by a bass
+    MAGIC_CONSTANT = 60000000  # took from BPM = 60,000,000/tempo it's used to calculate bpm based on midi tempo
+
+
 class NoteType(Enum):
     GOLDEN_NOTE = 0
     STANDARD_NOTE = 1

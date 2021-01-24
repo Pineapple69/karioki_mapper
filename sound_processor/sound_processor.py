@@ -1,6 +1,8 @@
 import librosa
 import numpy as np
 
+from enums.enums import GlobalVariables
+
 
 class SoundProcessor:
 
@@ -38,7 +40,9 @@ class SoundProcessor:
             max_frame_magnitude = frame.max()
             max_frame_magnitude_index = np.where(frame == max_frame_magnitude)
             if max_frame_magnitude > -80:
-                extracted_frequencies[frame_number] = fft_frequencies[max_frame_magnitude_index]
+                frequency = fft_frequencies[max_frame_magnitude_index]
+                if GlobalVariables.HIGHEST_NOTE.value >= frequency >= GlobalVariables.LOWEST_NOTE.value:
+                    extracted_frequencies[frame_number] = frequency
         return extracted_frequencies
 
     @staticmethod
@@ -54,7 +58,7 @@ class SoundProcessor:
 
     @staticmethod
     def seconds_to_beats(bpm, seconds):
-        return bpm * seconds / 60
+        return bpm * seconds
 
     @staticmethod
     def filter_computational_errors(duration_with_midi_list, min_note_duration):
