@@ -60,7 +60,7 @@ class UltrastarMapGenerator:
             if midi_note == line[1] or UltrastarMapGenerator.is_octave(line[1], midi_note):
                 line[0] += duration
             else:
-                line[0] *= 4
+                line[0] *= 4  # TODO requires improvement
                 lines.append(copy(line))
                 line[0] = duration
                 line[1] = midi_note
