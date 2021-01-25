@@ -58,12 +58,12 @@ class SoundProcessor:
 
     @staticmethod
     def seconds_to_beats(bpm, seconds):
-        return bpm * seconds
+        return (bpm * seconds) / 60
 
     @staticmethod
     def filter_computational_errors(duration_with_midi_list, min_note_duration):
         filtered_list = [duration_with_midi_list[0]]
-        midi_list_max_index = len(duration_with_midi_list) - 1
+        midi_list_max_index = len(duration_with_midi_list)
 
         for index in range(1, midi_list_max_index):
             current_note = duration_with_midi_list[index]

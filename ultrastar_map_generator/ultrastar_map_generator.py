@@ -42,10 +42,10 @@ class UltrastarMapGenerator:
         for note in notes_with_duration_and_syllables:
             line = ''
             if note[3] == NoteType.LINE_BREAK:
-                line = UltrastarMapGenerator.create_break_line(str(note[0]))
+                line = UltrastarMapGenerator.create_break_line(str(note[1]))
             else:
                 line = UltrastarMapGenerator.create_line(
-                    NoteType.STANDARD_NOTE, str(note[0]), str(note[1]), str(note[2]), note[3]
+                    NoteType.STANDARD_NOTE, str(note[0]), str(note[1]), str(int(note[2])), note[3]
                 )
             lines.append(line)
         lines.append(UltrastarMapGenerator.end_of_the_file())
@@ -55,14 +55,17 @@ class UltrastarMapGenerator:
     def get_duration_with_note(extracted_midis, duration):
         lines = []
         line = [duration, extracted_midis[0]]
-        for midi_index in range(1, len(extracted_midis) - 1):
+        for midi_index in range(1, len(extracted_midis)):
             midi_note = extracted_midis[midi_index]
             if midi_note == line[1] or UltrastarMapGenerator.is_octave(line[1], midi_note):
                 line[0] += duration
             else:
+                line[0] *= 4
                 lines.append(copy(line))
                 line[0] = duration
                 line[1] = midi_note
+        line[0] *= 4
+        lines.append(copy(line))
         return lines
 
     @staticmethod
@@ -86,17 +89,17 @@ class UltrastarMapGenerator:
     def get_notes_with_duration_and_syllables(notes_with_duration, syllables):
         syllables_index = 0
         for index, note_with_duration in enumerate(notes_with_duration):
-            syllable = syllables[syllables_index]
-            syllables_index += 1
             if note_with_duration[2] == -inf:
                 syllable = NoteType.LINE_BREAK
-                syllables_index -= 1
+            else:
+                syllable = syllables[syllables_index]
+                syllables_index += 1
             note_with_duration.append(syllable)
         return notes_with_duration
 
     @staticmethod
     def write_list_to_file(file_name, elements):
-        with open(file_name, 'a') as file:
+        with open(file_name, 'w') as file:
             for element in elements:
                 file.write(element + '\n')
             file.close()

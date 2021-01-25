@@ -6,13 +6,13 @@ from sound_processor.sound_processor import SoundProcessor
 from syllable_reader.syllable_reader import SyllableReader
 from ultrastar_map_generator.ultrastar_map_generator import UltrastarMapGenerator
 
-audio_filename = 'files/-C-E.mp3'
-syllables_filename = 'files/C-E_lyrics.txt'
-output_filename = 'test.txt'
+audio_filename = 'files/teflon_voc.mp3'
+syllables_filename = 'files/teflon.txt'
+output_filename = 'song.txt'
 output_midi_filename = 'midi'
 title = 'Top'
 artist = 'Kek'
-mp3 = audio_filename
+mp3 = 'audio.mp3'
 gap = 0
 min_beat_number = 2
 
@@ -22,8 +22,8 @@ sr = 44100
 
 y, sr = librosa.load(audio_filename, sr=sr)
 
-bpm = int(round(SoundProcessor.get_bpm(y, sr)))
-# bpm = 100
+# bpm = int(round(SoundProcessor.get_bpm(y, sr)))
+bpm = 130.5
 track_duration = SoundProcessor.get_duration(y, sr)
 fft_frequencies = SoundProcessor.generate_fft_frequencies(sr, n_fft)
 decibel_matrix = SoundProcessor.detect_pitch_stft(y, n_fft, hop_length)
@@ -40,7 +40,7 @@ notes_with_duration = UltrastarMapGenerator.get_duration_with_note(extracted_mid
 notes_with_rounded_duration = UltrastarMapGenerator.round_beats(notes_with_duration)
 notes_with_duration_beat_and_beat_numbers = UltrastarMapGenerator.get_beat_numbers(notes_with_rounded_duration)
 
-MidiCreator.create_midi(notes_with_duration_beat_and_beat_numbers, bpm, output_midi_filename)
+MidiCreator.create_midi(notes_with_duration_beat_and_beat_numbers, bpm, frame_duration, output_midi_filename)
 
 ultrastar_notes_with_duration_beat_and_beat_numbers = UltrastarMapGenerator.midi_to_ultrastar_note(notes_with_duration_beat_and_beat_numbers)
 syllables = SyllableReader.get_syllables_from_file(syllables_filename)
