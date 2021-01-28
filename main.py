@@ -6,17 +6,18 @@ from sound_processor.sound_processor import SoundProcessor
 from syllable_reader.syllable_reader import SyllableReader
 from ultrastar_map_generator.ultrastar_map_generator import UltrastarMapGenerator
 
-audio_filename = 'files/teflon_voc.mp3'
-syllables_filename = 'files/teflon.txt'
+audio_filename = 'files/katyusha.mp3'
+syllables_filename = 'files/katyusha_lyrics.txt'
 output_filename = 'song.txt'
 output_midi_filename = 'midi'
 title = 'Top'
 artist = 'Kek'
 mp3 = 'audio.mp3'
-min_beat_number = 2
+min_beat_number = 1
 
-hop_length = 8192
+hop_length = 16384
 n_fft = 32768
+win_length = n_fft
 sr = 44100
 
 y, sr = librosa.load(audio_filename, sr=sr)
@@ -29,9 +30,10 @@ decibel_matrix = SoundProcessor.detect_pitch_stft(y, n_fft, hop_length)
 frames_number = SoundProcessor.get_frames_number(decibel_matrix)
 frame_duration = SoundProcessor.get_frame_duration(track_duration, frames_number)
 beats_frame_duration = SoundProcessor.seconds_to_beats(bpm, frame_duration)
-extracted_frequencies = SoundProcessor.extract_frequencies(frames_number, decibel_matrix, fft_frequencies)
+extracted_frequencies, extracted_frequencies_decibel_matrix = SoundProcessor.extract_frequencies(frames_number, decibel_matrix, fft_frequencies)
 extracted_midis = SoundProcessor.hz_to_midi(extracted_frequencies)
-Plotter.spectrogram_plot(decibel_matrix, y, sr, hop_length, 'spectrogram.png')
+Plotter.spectrogram_plot(decibel_matrix, y, sr, hop_length, 'track_spectrogram.png')
+Plotter.spectrogram_plot(extracted_frequencies_decibel_matrix, y, sr, hop_length, 'extracted_frequencies_spectrogram.png')
 
 
 notes_with_duration = UltrastarMapGenerator.get_duration_with_note(extracted_midis, beats_frame_duration)

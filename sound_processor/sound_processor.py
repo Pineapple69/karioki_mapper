@@ -7,14 +7,13 @@ from enums.enums import GlobalVariables
 class SoundProcessor:
 
     @staticmethod
-    def detect_pitch_stft(y, n_fft, hop_length):
-        s_db = librosa.amplitude_to_db(np.abs(librosa.stft(y, n_fft=n_fft, hop_length=hop_length)), ref=np.max)
+    def detect_pitch_stft(y, n_fft, win_length, hop_length):
+        s_db = librosa.amplitude_to_db(np.abs(librosa.stft(y, n_fft=n_fft, hop_length=hop_length, win_length=win_length)), ref=np.max)
         return s_db
 
     @staticmethod
     def detect_pitch_piptrack(y, sr):
-        pitches, magnitudes = librosa.piptrack(y=y, sr=sr)
-        return {pitches: pitches, magnitudes: magnitudes}
+        return librosa.piptrack(y=y, sr=sr)
 
     @staticmethod
     def get_duration(y, sr):
@@ -35,15 +34,18 @@ class SoundProcessor:
     @staticmethod
     def extract_frequencies(frames_number, decibel_matrix, fft_frequencies):
         extracted_frequencies = np.array([0] * frames_number)
+        extracted_frequencies_decibel_matrix = np.array([[-80.0000] * frames_number] * decibel_matrix.shape[0])
         for frame_number in range(frames_number):
             frame = decibel_matrix[:, frame_number]
             max_frame_magnitude = frame.max()
-            max_frame_magnitude_index = np.where(frame == max_frame_magnitude)
+            max_frame_magnitude_index = np.where(frame == max_frame_magnitude)[0]
             if max_frame_magnitude > -80:
                 frequency = fft_frequencies[max_frame_magnitude_index]
                 if GlobalVariables.HIGHEST_NOTE.value >= frequency >= GlobalVariables.LOWEST_NOTE.value:
+                    for i in range(-5, 5):
+                        extracted_frequencies_decibel_matrix[max_frame_magnitude_index + i, frame_number] = frame[max_frame_magnitude_index]
                     extracted_frequencies[frame_number] = frequency
-        return extracted_frequencies
+        return extracted_frequencies, extracted_frequencies_decibel_matrix
 
     @staticmethod
     def hz_to_midi(extracted_frequencies):

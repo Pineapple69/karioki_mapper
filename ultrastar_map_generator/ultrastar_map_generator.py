@@ -57,7 +57,7 @@ class UltrastarMapGenerator:
         gap_in_beats = 0
         if first_note[1] == -inf:
             gap_in_beats = first_note[0]
-        del notes_with_duration[0]
+            del notes_with_duration[0]
         return notes_with_duration, gap_in_beats
 
     @staticmethod
