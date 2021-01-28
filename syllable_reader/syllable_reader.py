@@ -1,3 +1,6 @@
+from enums.enums import NoteType
+
+
 class SyllableReader:
 
     @staticmethod
@@ -9,4 +12,5 @@ class SyllableReader:
             line = line.rstrip()
             line = line.replace(',', '')
             syllables += line.split(' ')
+            syllables.append(NoteType.LINE_BREAK)
         return syllables

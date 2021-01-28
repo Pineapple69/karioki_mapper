@@ -13,7 +13,6 @@ output_midi_filename = 'midi'
 title = 'Top'
 artist = 'Kek'
 mp3 = 'audio.mp3'
-gap = 0
 min_beat_number = 2
 
 hop_length = 8192
@@ -22,8 +21,8 @@ sr = 44100
 
 y, sr = librosa.load(audio_filename, sr=sr)
 
-# bpm = int(round(SoundProcessor.get_bpm(y, sr)))
-bpm = 130.5
+bpm = int(round(SoundProcessor.get_bpm(y, sr)))
+# bpm = 130.5
 track_duration = SoundProcessor.get_duration(y, sr)
 fft_frequencies = SoundProcessor.generate_fft_frequencies(sr, n_fft)
 decibel_matrix = SoundProcessor.detect_pitch_stft(y, n_fft, hop_length)
@@ -36,6 +35,8 @@ Plotter.spectrogram_plot(decibel_matrix, y, sr, hop_length, 'spectrogram.png')
 
 
 notes_with_duration = UltrastarMapGenerator.get_duration_with_note(extracted_midis, beats_frame_duration)
+notes_with_duration, gap_in_beats = UltrastarMapGenerator.get_gap(notes_with_duration)
+gap = SoundProcessor.seconds_to_ms(SoundProcessor.beats_to_seconds(bpm, gap_in_beats))
 # filtered_notes_with_duration = SoundProcessor.filter_computational_errors(notes_with_duration, min_beat_number)
 notes_with_rounded_duration = UltrastarMapGenerator.round_beats(notes_with_duration)
 notes_with_duration_beat_and_beat_numbers = UltrastarMapGenerator.get_beat_numbers(notes_with_rounded_duration)

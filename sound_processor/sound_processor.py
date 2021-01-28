@@ -58,7 +58,15 @@ class SoundProcessor:
 
     @staticmethod
     def seconds_to_beats(bpm, seconds):
-        return (bpm * seconds) / 60
+        return ((bpm * seconds) / 60) * GlobalVariables.DURATION_MULTIPLIER.value
+
+    @staticmethod
+    def beats_to_seconds(bpm, beats):
+        return (beats * 60) / (bpm * GlobalVariables.DURATION_MULTIPLIER.value)
+
+    @staticmethod
+    def seconds_to_ms(seconds):
+        return round(seconds * 1000)
 
     @staticmethod
     def filter_computational_errors(duration_with_midi_list, min_note_duration):
