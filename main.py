@@ -15,9 +15,9 @@ artist = 'Kek'
 mp3 = 'audio.mp3'
 min_beat_number = 1
 
-hop_length = 16384
+hop_length = 2048
 n_fft = 32768
-win_length = n_fft
+win_length = int(n_fft / 4)
 sr = 44100
 
 y, sr = librosa.load(audio_filename, sr=sr)
@@ -26,7 +26,8 @@ bpm = int(round(SoundProcessor.get_bpm(y, sr)))
 # bpm = 130.5
 track_duration = SoundProcessor.get_duration(y, sr)
 fft_frequencies = SoundProcessor.generate_fft_frequencies(sr, n_fft)
-decibel_matrix = SoundProcessor.detect_pitch_stft(y, n_fft, hop_length)
+decibel_matrix = SoundProcessor.detect_pitch_stft(y, n_fft, win_length, hop_length)
+pitches, magnitudes = SoundProcessor.detect_pitch_piptrack(y, sr)
 frames_number = SoundProcessor.get_frames_number(decibel_matrix)
 frame_duration = SoundProcessor.get_frame_duration(track_duration, frames_number)
 beats_frame_duration = SoundProcessor.seconds_to_beats(bpm, frame_duration)
@@ -34,7 +35,8 @@ extracted_frequencies, extracted_frequencies_decibel_matrix = SoundProcessor.ext
 extracted_midis = SoundProcessor.hz_to_midi(extracted_frequencies)
 Plotter.spectrogram_plot(decibel_matrix, y, sr, hop_length, 'track_spectrogram.png')
 Plotter.spectrogram_plot(extracted_frequencies_decibel_matrix, y, sr, hop_length, 'extracted_frequencies_spectrogram.png')
-
+Plotter.simple_plot(pitches, 'pitches.png')
+Plotter.simple_plot(magnitudes, 'magnitudes.png')
 
 notes_with_duration = UltrastarMapGenerator.get_duration_with_note(extracted_midis, beats_frame_duration)
 notes_with_duration, gap_in_beats = UltrastarMapGenerator.get_gap(notes_with_duration)
