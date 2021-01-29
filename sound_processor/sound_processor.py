@@ -12,8 +12,21 @@ class SoundProcessor:
         return s_db
 
     @staticmethod
-    def detect_pitch_piptrack(y, sr):
-        return librosa.piptrack(y=y, sr=sr)
+    def detect_pitch_piptrack(y, sr, n_fft, hop_length, win_length):
+        return librosa.piptrack(y=y, sr=sr, n_fft=n_fft, hop_length=hop_length, win_length=win_length)
+
+    @staticmethod
+    def extract_frequencies_piptrack(frames_number, pitches, magnitudes):
+        decibel_matrix = SoundProcessor.create_decibel_matrix(pitches.shape)
+        extracted_frequencies = []
+        for frame_number_index in range(frames_number):
+            index = magnitudes[:, frame_number_index].argmax()
+            pitch = pitches[index, frame_number_index]
+            for i in range(-2, 2):
+                decibel_matrix[index + i, frame_number_index] = -10
+            extracted_frequencies.append(pitch)
+        return extracted_frequencies, decibel_matrix
+
 
     @staticmethod
     def get_duration(y, sr):
@@ -46,6 +59,11 @@ class SoundProcessor:
                         extracted_frequencies_decibel_matrix[max_frame_magnitude_index + i, frame_number] = frame[max_frame_magnitude_index]
                     extracted_frequencies[frame_number] = frequency
         return extracted_frequencies, extracted_frequencies_decibel_matrix
+
+    @staticmethod
+    def create_decibel_matrix(matrix_shape):
+        return np.array([[-80.0000] * matrix_shape[1]] * matrix_shape[0])
+
 
     @staticmethod
     def hz_to_midi(extracted_frequencies):

@@ -6,7 +6,7 @@ from sound_processor.sound_processor import SoundProcessor
 from syllable_reader.syllable_reader import SyllableReader
 from ultrastar_map_generator.ultrastar_map_generator import UltrastarMapGenerator
 
-audio_filename = 'files/katyusha.mp3'
+audio_filename = 'files/katyusha_short.mp3'
 syllables_filename = 'files/katyusha_lyrics.txt'
 output_filename = 'song.txt'
 output_midi_filename = 'midi'
@@ -15,25 +15,27 @@ artist = 'Kek'
 mp3 = 'audio.mp3'
 min_beat_number = 1
 
-hop_length = 2048
-n_fft = 32768
-win_length = int(n_fft / 4)
-sr = 44100
+hop_length = 8192
+n_fft = 65536
+win_length = int(n_fft)
+sr = 176400
 
 y, sr = librosa.load(audio_filename, sr=sr)
 
-bpm = int(round(SoundProcessor.get_bpm(y, sr)))
-# bpm = 130.5
+# bpm = int(round(SoundProcessor.get_bpm(y, sr)))
+bpm = 130.5
 track_duration = SoundProcessor.get_duration(y, sr)
-fft_frequencies = SoundProcessor.generate_fft_frequencies(sr, n_fft)
-decibel_matrix = SoundProcessor.detect_pitch_stft(y, n_fft, win_length, hop_length)
-pitches, magnitudes = SoundProcessor.detect_pitch_piptrack(y, sr)
-frames_number = SoundProcessor.get_frames_number(decibel_matrix)
+# fft_frequencies = SoundProcessor.generate_fft_frequencies(sr, n_fft)
+# decibel_matrix = SoundProcessor.detect_pitch_stft(y, n_fft, win_length, hop_length)
+pitches, magnitudes = SoundProcessor.detect_pitch_piptrack(y, sr, n_fft, hop_length, win_length)
+# frames_number = SoundProcessor.get_frames_number(decibel_matrix)
+frames_number = SoundProcessor.get_frames_number(pitches)
+extracted_frequencies_piptrack, extracted_frequencies_decibel_matrix = SoundProcessor.extract_frequencies_piptrack(frames_number, pitches, magnitudes)
 frame_duration = SoundProcessor.get_frame_duration(track_duration, frames_number)
 beats_frame_duration = SoundProcessor.seconds_to_beats(bpm, frame_duration)
-extracted_frequencies, extracted_frequencies_decibel_matrix = SoundProcessor.extract_frequencies(frames_number, decibel_matrix, fft_frequencies)
-extracted_midis = SoundProcessor.hz_to_midi(extracted_frequencies)
-Plotter.spectrogram_plot(decibel_matrix, y, sr, hop_length, 'track_spectrogram.png')
+# extracted_frequencies, extracted_frequencies_decibel_matrix = SoundProcessor.extract_frequencies(frames_number, decibel_matrix, fft_frequencies)
+extracted_midis = SoundProcessor.hz_to_midi(extracted_frequencies_piptrack)
+# Plotter.spectrogram_plot(decibel_matrix, y, sr, hop_length, 'track_spectrogram.png')
 Plotter.spectrogram_plot(extracted_frequencies_decibel_matrix, y, sr, hop_length, 'extracted_frequencies_spectrogram.png')
 Plotter.simple_plot(pitches, 'pitches.png')
 Plotter.simple_plot(magnitudes, 'magnitudes.png')
@@ -45,7 +47,7 @@ gap = SoundProcessor.seconds_to_ms(SoundProcessor.beats_to_seconds(bpm, gap_in_b
 notes_with_rounded_duration = UltrastarMapGenerator.round_beats(notes_with_duration)
 notes_with_duration_beat_and_beat_numbers = UltrastarMapGenerator.get_beat_numbers(notes_with_rounded_duration)
 
-MidiCreator.create_midi(notes_with_duration_beat_and_beat_numbers, bpm, frame_duration, output_midi_filename)
+# MidiCreator.create_midi(notes_with_duration_beat_and_beat_numbers, bpm, frame_duration, output_midi_filename)
 
 ultrastar_notes_with_duration_beat_and_beat_numbers = UltrastarMapGenerator.midi_to_ultrastar_note(notes_with_duration_beat_and_beat_numbers)
 syllables = SyllableReader.get_syllables_from_file(syllables_filename)
@@ -56,6 +58,6 @@ headers = UltrastarMapGenerator.create_headers(artist, title, str(bpm), str(gap)
 map_lines = UltrastarMapGenerator.generate_map_lines(notes_with_duration_beat_numbers_and_syllables)
 lines = headers + map_lines
 
-Plotter.spectrogram_plot(decibel_matrix, y, sr, hop_length, 'spectrogram.png')
+# Plotter.spectrogram_plot(decibel_matrix, y, sr, hop_length, 'spectrogram.png')
 
 UltrastarMapGenerator.write_list_to_file(output_filename, lines)
