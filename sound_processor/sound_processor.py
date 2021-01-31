@@ -1,4 +1,5 @@
 import librosa
+import matplotlib.pyplot as plt
 import numpy as np
 
 from enums.enums import GlobalVariables
@@ -14,6 +15,29 @@ class SoundProcessor:
     @staticmethod
     def detect_pitch_piptrack(y, sr, n_fft, hop_length, win_length):
         return librosa.piptrack(y=y, sr=sr, n_fft=n_fft, hop_length=hop_length, win_length=win_length)
+
+    @staticmethod
+    def detect_pitch_autocorrelate(y, sr, frame_length):
+        pitches = []
+        audio_length = len(y)
+        chunk_length = int(sr * frame_length)
+        for chunk_beg_index in range(0, audio_length, chunk_length):
+            chunk_end_index = chunk_beg_index + chunk_length
+            if chunk_end_index < audio_length:
+                pitches.append(SoundProcessor.autocorrelate(y[chunk_beg_index:chunk_end_index], sr))
+            else:
+                pitches.append(SoundProcessor.autocorrelate(y[chunk_beg_index:], sr))
+        return pitches
+
+    @staticmethod
+    def autocorrelate(y, sr):
+        r = librosa.autocorrelate(y)
+        t_lo = sr / GlobalVariables.HIGHEST_NOTE.value
+        t_hi = sr / GlobalVariables.LOWEST_NOTE.value
+        r[:int(t_lo)] = 0
+        r[int(t_hi):] = 0
+        t_max = r.argmax()
+        return GlobalVariables.SILENCE.value if t_max == 0 else sr / t_max
 
     @staticmethod
     def extract_frequencies_piptrack(frames_number, pitches, magnitudes):

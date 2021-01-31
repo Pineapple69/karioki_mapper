@@ -20,5 +20,6 @@ class Plotter:
     @staticmethod
     def simple_plot(vector, filename):
         plt.figure()
-        plt.plot(vector)
+        # plt.plot(vector)
+        plt.scatter(range(len(vector)), vector)
         plt.savefig(filename)

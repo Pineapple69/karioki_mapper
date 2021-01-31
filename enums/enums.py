@@ -7,6 +7,7 @@ class GlobalVariables(Enum):
     MAGIC_CONSTANT = 60000000  # took from BPM = 60,000,000/tempo it's used to calculate bpm based on midi tempo
     TICKS_PER_QUARTER_NOTE = 192
     DURATION_MULTIPLIER = 4
+    SILENCE = 0
 
 
 class NoteType(Enum):
