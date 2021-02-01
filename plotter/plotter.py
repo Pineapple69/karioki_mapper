@@ -18,7 +18,17 @@ class Plotter:
         plt.savefig(filename)
 
     @staticmethod
-    def simple_plot(vector, filename):
+    def simple_plot(vector, vector2, filename, title='', x_axis_label='', y_axis_label=''):
         plt.figure()
-        plt.plot(vector)
+        plt.title(title)
+        plt.xlabel(x_axis_label)
+        plt.ylabel(y_axis_label)
+        plt.plot(vector, vector2)
         plt.savefig(filename)
+
+    @staticmethod
+    def wave_plot(y, sr, filename):
+        plt.figure()
+        librosa.display.waveplot(y, sr=sr)
+        plt.savefig(filename)
+
