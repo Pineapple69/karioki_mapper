@@ -2,6 +2,7 @@ import librosa
 from librosa import display
 import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 matplotlib.use('Agg')
@@ -22,4 +23,14 @@ class Plotter:
         plt.figure()
         # plt.plot(vector)
         plt.scatter(range(len(vector)), vector)
+        plt.savefig(filename)
+
+    @staticmethod
+    def plot_hann_window(filename):
+        window = np.hanning(51)
+        plt.figure()
+        plt.plot(window)
+        plt.title("Hann window")
+        plt.ylabel("Amplitude")
+        plt.xlabel("Sample")
         plt.savefig(filename)
