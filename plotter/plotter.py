@@ -53,3 +53,9 @@ class Plotter:
             plt.plot(func)
         plt.xlabel('Time [µs]')
         plt.savefig(filename)
+
+    @staticmethod
+    def wave_plot(y, sr, filename):
+        plt.figure()
+        librosa.display.waveplot(y, sr=sr)
+        plt.savefig(filename)

@@ -109,6 +109,22 @@ class SoundProcessor:
         return ((bpm * seconds) / 60) * GlobalVariables.DURATION_MULTIPLIER.value
 
     @staticmethod
+    def get_decibel_matrix_column(decibel_matrix, index):
+        return decibel_matrix[:, index]
+
+    @staticmethod
+    def get_part_of_decibel_matrix(frames_number, decibel_matrix, index):
+        part_of_decibel_matrix = np.array([[-80.0000] * frames_number] * decibel_matrix.shape[0])
+        part_of_decibel_matrix[:, index] = decibel_matrix[:, index]
+        return part_of_decibel_matrix
+
+    @staticmethod
+    def get_part_of_waveform(y, beg, end):
+        part_of_waveform = np.array([0.0] * len(y))
+        part_of_waveform[beg:end] = y[beg:end]
+        return part_of_waveform
+
+    @staticmethod
     def beats_to_seconds(bpm, beats):
         return (beats * 60) / (bpm * GlobalVariables.DURATION_MULTIPLIER.value)
 
