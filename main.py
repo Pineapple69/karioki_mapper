@@ -1,12 +1,14 @@
 import librosa
+from numpy import linspace, math, sin
 
 from midi_creator.midi_creator import MidiCreator
+from miscellaneous.miscellaneous import Miscellaneous
 from plotter.plotter import Plotter
 from sound_processor.sound_processor import SoundProcessor
 from syllable_reader.syllable_reader import SyllableReader
 from ultrastar_map_generator.ultrastar_map_generator import UltrastarMapGenerator
 
-audio_filename = 'files/katyusha.mp3'
+audio_filename = 'files/guitar_A-E-D-E_dirty.mp3'
 syllables_filename = 'files/katyusha_lyrics.txt'
 output_filename = 'song.txt'
 output_midi_filename = 'midi'
@@ -29,8 +31,15 @@ track_duration = SoundProcessor.get_duration(y, sr)
 # decibel_matrix = SoundProcessor.detect_pitch_stft(y, n_fft, win_length, hop_length)
 # pitches, magnitudes = SoundProcessor.detect_pitch_piptrack(y, sr, n_fft, hop_length, win_length)
 extracted_frequencies_autocorrelate = SoundProcessor.detect_pitch_autocorrelate(y, sr, frame_duration)
-Plotter.simple_plot(extracted_frequencies_autocorrelate, 'autocorrelate_diagram.png')
-Plotter.plot_hann_window('hann_window')
+Plotter.simple_scatter(extracted_frequencies_autocorrelate, 'autocorrelate_diagram.png')
+# Plotter.plot_hann_window('hann_window')
+# t_0 = linspace(0, 4*math.pi, 800)
+# t_1 = linspace(0, 4*math.pi, 800)
+# function_sin_0 = sin(t_0)
+# function_sin_1 = sin(t_1)
+# correlation = SoundProcessor.correlate(function_sin_0, function_sin_1)
+# Plotter.multiple_plot([function_sin_0, function_sin_1], 'autocorrelation_sin_lag.png')
+# Miscellaneous.generate_sin_correlation_graphs(110, 110)
 # frames_number = SoundProcessor.get_frames_number(decibel_matrix)
 # frames_number = SoundProcessor.get_frames_number(pitches)
 # extracted_frequencies_piptrack, extracted_frequencies_decibel_matrix = SoundProcessor.extract_frequencies_piptrack(frames_number, pitches, magnitudes)

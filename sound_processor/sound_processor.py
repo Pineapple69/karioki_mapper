@@ -40,6 +40,10 @@ class SoundProcessor:
         return GlobalVariables.SILENCE.value if t_max == 0 else sr / t_max
 
     @staticmethod
+    def correlate(vec_0, vec_1):
+        return np.correlate(vec_0, vec_1)
+
+    @staticmethod
     def extract_frequencies_piptrack(frames_number, pitches, magnitudes):
         decibel_matrix = SoundProcessor.create_decibel_matrix(pitches.shape)
         extracted_frequencies = []

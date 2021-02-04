@@ -19,10 +19,21 @@ class Plotter:
         plt.savefig(filename)
 
     @staticmethod
-    def simple_plot(vector, filename):
+    def simple_plot(vector, filename, xlim=None, ylim=None):
         plt.figure()
-        # plt.plot(vector)
-        plt.scatter(range(len(vector)), vector)
+        plt.plot(vector)
+        if not xlim is None:
+            plt.xlim(xlim)
+        if not ylim is None:
+            plt.ylim(ylim)
+        plt.savefig(filename)
+
+    @staticmethod
+    def simple_scatter(vector, filename):
+        plt.figure()
+        plt.scatter(range(len(vector)), vector, s=10)
+        plt.xlabel('Time')
+        plt.ylabel('Hz')
         plt.savefig(filename)
 
     @staticmethod
@@ -33,4 +44,12 @@ class Plotter:
         plt.title("Hann window")
         plt.ylabel("Amplitude")
         plt.xlabel("Sample")
+        plt.savefig(filename)
+
+    @staticmethod
+    def multiple_plot(func_list, filename):
+        plt.figure()
+        for index, func in enumerate(func_list):
+            plt.plot(func)
+        plt.xlabel('Time [µs]')
         plt.savefig(filename)
