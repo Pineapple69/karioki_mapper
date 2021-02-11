@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from enums.enums import GlobalVariables
+from miscellaneous.miscellaneous import Miscellaneous
 
 
 class SoundProcessor:
@@ -59,6 +60,13 @@ class SoundProcessor:
     @staticmethod
     def get_duration(y, sr):
         return librosa.core.get_duration(y=y, sr=sr)
+
+    @staticmethod
+    def erase_silence(y, silence_intervals):
+        y_without_silence = np.array([0.0] * len(y))
+        for interval in silence_intervals:
+            y_without_silence[interval[0]:interval[1]] = y[interval[0]:interval[1]]
+        return y_without_silence
 
     @staticmethod
     def generate_fft_frequencies(sr, n_fft):
@@ -134,29 +142,44 @@ class SoundProcessor:
 
     @staticmethod
     def filter_computational_errors(duration_with_midi_list, min_note_duration):
-        filtered_list = [duration_with_midi_list[0]]
-        midi_list_max_index = len(duration_with_midi_list)
+        def find_next_legal_note(midi_list_pos):
+            length = len(duration_with_midi_list)
+            if midi_list_pos <= length:
+                for index in range(midi_list_pos, length):
+                    if duration_with_midi_list[index][0] >= min_note_duration:
+                        return index
+            return -1
 
-        for index in range(1, midi_list_max_index):
-            current_note = duration_with_midi_list[index]
-            if index <= midi_list_max_index:
-                next_note = duration_with_midi_list[index + 1]
-                if current_note[0] < min_note_duration:
-                    if filtered_list[-1][1] != current_note[1] and filtered_list[-1][1] == next_note[1]:
-                        filtered_list[0] += current_note[0]
+        def sum_range(beg, end, beg_offset=0, add_to_end=False):
+            additional_note_length = Miscellaneous.foldr(lambda x, y: x[0] + y, 0, duration_with_midi_list[beg + beg_offset:end])
+            index = beg - beg_offset
+            if add_to_end:
+                index = end
+            duration_with_midi_list[index][0] += additional_note_length
+            del duration_with_midi_list[beg + beg_offset:end]
+
+        legal_note_index = find_next_legal_note(0)
+        next_legal_note_index = 0
+
+        if legal_note_index > 0:
+            sum_range(0, legal_note_index, add_to_end=True)
+            legal_note_index = 0
+
+        while find_next_legal_note(next_legal_note_index + 1) != -1:
+            next_legal_note_index = find_next_legal_note(next_legal_note_index + 1)
+            if next_legal_note_index - legal_note_index > 1:
+                if duration_with_midi_list[legal_note_index][1] == duration_with_midi_list[next_legal_note_index][1]:
+                    sum_range(legal_note_index, next_legal_note_index)
                 else:
-                    filtered_list.append(current_note)
+                    sum_range(legal_note_index, next_legal_note_index, 1)
+                    legal_note_index -= 1
+                legal_note_index = next_legal_note_index - legal_note_index
+                next_legal_note_index = legal_note_index
             else:
-                filtered_list.append(current_note)
+                legal_note_index = next_legal_note_index
 
-        if filtered_list[0][0] < min_note_duration:
-            filtered_list[1][0] += filtered_list[0][0]
-            del filtered_list[0]
+        if next_legal_note_index != len(duration_with_midi_list) - 1:
+            sum_range(next_legal_note_index, len(duration_with_midi_list), 1)
 
-        midi_list_last_item = duration_with_midi_list[midi_list_max_index]
-        if midi_list_last_item[0] < min_note_duration:
-            filtered_list[-1][0] = midi_list_last_item[0]
-        else:
-            filtered_list.append(midi_list_last_item)
+        return duration_with_midi_list
 
-        return filtered_list

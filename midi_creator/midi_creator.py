@@ -14,9 +14,9 @@ class MidiCreator:
         ticks_per_quarter_note = int(MidiCreator.get_ticks_per_quarter_note(bpm, ms_per_tick))
         midi = MIDIFile(1, eventtime_is_ticks=True)
         midi.addTempo(track, time, 20)
-        current_beat = 0
+        # current_beat = 0
         for i, beat_duration_note in enumerate(beat_duration_notes_list):
-            current_beat += beat_duration_note[0]
+            current_beat = beat_duration_note[0] * 30
             duration = beat_duration_note[1]
             pitch = beat_duration_note[2]
             if pitch != -inf:
