@@ -32,11 +32,11 @@ class Plotter:
         plt.savefig(filename)
 
     @staticmethod
-    def simple_scatter(vector, filename):
+    def simple_scatter(vector, filename, xlabel='Time', ylabel='Hz'):
         plt.figure()
         plt.scatter(range(len(vector)), vector, s=10)
-        plt.xlabel('Time')
-        plt.ylabel('Hz')
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
         plt.savefig(filename)
 
     @staticmethod

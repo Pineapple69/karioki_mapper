@@ -1,6 +1,8 @@
 import librosa
 from numpy import linspace, math, sin
 
+from enums.enums import GlobalVariables
+from input_manager.input_manager import InputManager
 from midi_creator.midi_creator import MidiCreator
 from miscellaneous.miscellaneous import Miscellaneous
 from plotter.plotter import Plotter
@@ -8,13 +10,20 @@ from sound_processor.sound_processor import SoundProcessor
 from syllable_reader.syllable_reader import SyllableReader
 from ultrastar_map_generator.ultrastar_map_generator import UltrastarMapGenerator
 
-audio_filename = 'files/michishirube.mp3'
-syllables_filename = 'files/michishirube.txt'
+audio_filename = 'files/Michael Jackson - Billie Jean.mp3'
+# audio_filename = InputManager.get_audio_file_path()
+syllables_filename = 'files/kimbra_chor.txt'
+# syllables_filename = InputManager.get_lyrics_file_path()
+title = 'Katiusza'
+# title = InputManager.get_title()
+artist = 'Kek'
+# artist = InputManager.get_artist()
+
+# bpm = InputManager.get_bpm()
+bpm = 130
+mp3 = 'audio.mp3'
 output_filename = 'song.txt'
 output_midi_filename = 'midi'
-title = 'Katiusza'
-artist = 'Kek'
-mp3 = 'audio.mp3'
 
 hop_length = 2048
 n_fft = 65536
@@ -22,14 +31,14 @@ win_length = int(n_fft)
 sr = 22050
 frame_duration = 0.1  # seconds
 y, sr = librosa.load(audio_filename, sr=sr)
-silence_intervals = librosa.effects.split(y=y, frame_length=200, top_db=30)
+silence_intervals = librosa.effects.split(y=y, frame_length=200, top_db=GlobalVariables.MIN_DB.value)
 Plotter.wave_plot(y, sr, 'wave.png')
 y = SoundProcessor.erase_silence(y, silence_intervals)
 Plotter.wave_plot(y, sr, 'wave_without_silence.png')
 # Plotter.wave_plot(y_without_silence, sr, 'wave_without_silence.png')
-# bpm = int(round(SoundProcessor.get_bpm(y, sr)))
-bpm = 130
-min_beat_number = 2.5
+if not bpm:
+    bpm = int(round(SoundProcessor.get_bpm(y, sr)))
+min_beat_number = SoundProcessor.seconds_to_beats(0.25, bpm)
 track_duration = SoundProcessor.get_duration(y, sr)
 # fft_frequencies = SoundProcessor.generate_fft_frequencies(sr, n_fft)
 decibel_matrix = SoundProcessor.detect_pitch_stft(y, n_fft, win_length, hop_length)
@@ -57,7 +66,7 @@ beats_frame_duration = SoundProcessor.seconds_to_beats(bpm, frame_duration)
 # extracted_frequencies, extracted_frequencies_decibel_matrix = SoundProcessor.extract_frequencies(frames_number, decibel_matrix, fft_frequencies)
 # extracted_midis = SoundProcessor.hz_to_midi(extracted_frequencies_piptrack)
 extracted_midis = SoundProcessor.hz_to_midi(extracted_frequencies_autocorrelate)
-Plotter.simple_scatter(extracted_midis, 'midis_autocorrelate.png')
+Plotter.simple_scatter(extracted_midis, 'midis_autocorrelate.png', ylabel='Midi')
 Plotter.spectrogram_plot(decibel_matrix, y, sr, hop_length, 'track_spectrogram.png')
 # Plotter.spectrogram_plot(extracted_frequencies_decibel_matrix, y, sr, hop_length, 'extracted_frequencies_spectrogram.png')
 # Plotter.simple_plot(pitches, 'pitches.png')
@@ -70,7 +79,7 @@ filtered_notes_with_duration = SoundProcessor.filter_computational_errors(notes_
 notes_with_rounded_duration = UltrastarMapGenerator.round_beats(filtered_notes_with_duration)
 notes_with_duration_beat_and_beat_numbers = UltrastarMapGenerator.get_beat_numbers(notes_with_rounded_duration)
 
-# MidiCreator.create_midi(notes_with_duration_beat_and_beat_numbers, bpm, frame_duration, output_midi_filename)
+MidiCreator.create_midi(notes_with_duration_beat_and_beat_numbers, bpm, frame_duration, output_midi_filename)
 
 ultrastar_notes_with_duration_beat_and_beat_numbers = UltrastarMapGenerator.midi_to_ultrastar_note(notes_with_duration_beat_and_beat_numbers)
 syllables = SyllableReader.get_syllables_from_file(syllables_filename)
