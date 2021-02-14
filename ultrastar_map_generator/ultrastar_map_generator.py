@@ -42,6 +42,7 @@ class UltrastarMapGenerator:
         for note in notes_with_duration_and_syllables:
             line = ''
             if note[3] == NoteType.LINE_BREAK:
+
                 line = UltrastarMapGenerator.create_break_line(str(note[0]))
             else:
                 line = UltrastarMapGenerator.create_line(
