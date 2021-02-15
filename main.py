@@ -14,7 +14,7 @@ bpm = InputManager.get_bpm()
 
 mp3 = 'audio.mp3'
 output_filename = 'song.txt'
-output_midi_filename = artist + ' - ' + title
+output_midi_filename = 'midi'
 
 sr = 22050
 frame_duration = 0.1  # seconds
@@ -25,7 +25,7 @@ y = SoundProcessor.erase_silence(y, silence_intervals)
 if not bpm:
     bpm = int(round(SoundProcessor.get_bpm(y, sr)))
 
-min_beat_number = SoundProcessor.seconds_to_beats(0.25, bpm)
+min_beat_number = SoundProcessor.seconds_to_beats(0.2, bpm)
 track_duration = SoundProcessor.get_duration(y, sr)
 extracted_frequencies_autocorrelate = SoundProcessor.detect_pitch_autocorrelate(y, sr, frame_duration)
 
@@ -38,7 +38,7 @@ filtered_notes_with_duration = SoundProcessor.filter_computational_errors(notes_
 notes_with_rounded_duration = UltrastarMapGenerator.round_beats(filtered_notes_with_duration)
 notes_with_duration_beat_and_beat_numbers = UltrastarMapGenerator.get_beat_numbers(notes_with_rounded_duration)
 
-MidiCreator.create_midi(notes_with_duration_beat_and_beat_numbers, bpm, frame_duration, output_midi_filename)
+MidiCreator.create_midi(notes_with_duration_beat_and_beat_numbers, bpm, output_midi_filename)
 
 ultrastar_notes_with_duration_beat_and_beat_numbers = UltrastarMapGenerator.midi_to_ultrastar_note(notes_with_duration_beat_and_beat_numbers)
 syllables = SyllableReader.get_syllables_from_file(syllables_filename)
