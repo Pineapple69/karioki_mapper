@@ -10,7 +10,7 @@ audio_filename = InputManager.get_audio_file_path()
 syllables_filename = InputManager.get_lyrics_file_path()
 title = InputManager.get_title()
 artist = InputManager.get_artist()
-bpm = InputManager.get_bpm()
+bpm = int(round(float(InputManager.get_bpm())))
 
 mp3 = 'audio.mp3'
 output_filename = 'song.txt'
